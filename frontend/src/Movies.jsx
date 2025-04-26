@@ -1,40 +1,28 @@
-// const Movies = ({ movies }) => {
-//   return (
-//     <table>
-//       <tbody>
-//         <tr>
-//           <th>Title</th>
-//           <th>Director</th>
-//           <th>Release year</th>
-//         </tr>
-//         {movies.map((movie) => (
-//           <tr key={movie.id}>
-//             <td>{movie.title}</td>
-//             <td>{movie.director}</td>
-//             <td>{movie.release_year}</td>
-//           </tr>
-//         ))}
-//       </tbody>
-//     </table>
-//   );
-// };
-
-// export default Movies;
-
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // for redirect
 
-const Movies = () => {
+const Movies = ({ setIsAuthenticated }) => {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchAllMovies = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/movieapi/movies");
+        const res = await axios.get("http://localhost:5000/movieapi/movies", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setMovies(res.data);
       } catch (error) {
         console.error("Error fetching movies:", error);
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          alert("Session expired. Please log in again.");
+          handleLogout();
+        }
       }
     };
     fetchAllMovies();
@@ -47,6 +35,9 @@ const Movies = () => {
           "http://localhost:5000/movieapi/movies/search",
           {
             params: { q: query },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
         setMovies(res.data);
@@ -60,9 +51,23 @@ const Movies = () => {
     }
   }, [query]);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+    navigate("/login");
+  };
+
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Hello</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Movies</h1>
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </div>
 
       <input
         type="text"

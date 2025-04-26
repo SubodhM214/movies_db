@@ -3,6 +3,7 @@ import movieRouter from "./routes/movies.js";
 import cors from "cors";
 import loginRouter from "./routes/login.js";
 import signupRouter from "./routes/signup.js";
+import { verifyToken } from "./middleware/authMMiddleware.js";
 
 const app = express();
 
@@ -14,7 +15,7 @@ app.use(
 );
 app.use(express.json());
 
-app.use("/movieapi/movies", movieRouter);
+app.use("/movieapi/movies", verifyToken, movieRouter);
 app.use("/login", loginRouter);
 app.use("/signup", signupRouter);
 app.listen(5000, () => {

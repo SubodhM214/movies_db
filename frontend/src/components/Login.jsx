@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import validation from "../validation/LoginValidation.jsx";
+
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -9,7 +9,7 @@ const Login = ({ setIsAuthenticated }) => {
     password: "",
   });
 
-  const [errors, setErrors] = useState({});
+  // const [errors, setErrors] = useState({});
 
   // new
   const navigate = useNavigate();
@@ -20,34 +20,58 @@ const Login = ({ setIsAuthenticated }) => {
     }));
   };
 
+  // const handleSubmit = (event) => {
+  //   event.preventDefault();
+
+  //   console.log("Form Submitted");
+
+  //   const validationErrors = validation(values);
+  //   setErrors(validationErrors);
+  //   if (Object.keys(validationErrors).length === 0) {
+  //     console.log("No validation errors, making API call");
+  //     axios
+  //       .post("http://localhost:5000/login", values)
+  //       .then((res) => {
+  //         console.log(res.data);
+  //         if (res.data.message === "Success") {
+  //           setIsAuthenticated(true);
+  //           alert("Login successful!");
+
+  //           //redirect
+  //           navigate("/movies");
+  //         } else {
+  //           alert("Invalid credentials");
+  //         }
+  //       })
+  //       .catch((err) => {
+  //         console.error("Axios error:", err);
+  //         alert("Something went wrong");
+  //       });
+  //   }
+  // };
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    console.log("Form Submitted");
+    axios
+      .post("http://localhost:5000/login", values)
+      .then((res) => {
+        console.log(res.data);
+        if (res.data.message === "Success" && res.data.token) {
+          localStorage.setItem("token", res.data.token);
+          setIsAuthenticated(true);
+          alert("Login successful!");
 
-    const validationErrors = validation(values);
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length === 0) {
-      console.log("No validation errors, making API call");
-      axios
-        .post("http://localhost:5000/login", values)
-        .then((res) => {
-          console.log(res.data);
-          if (res.data.message === "Success") {
-            setIsAuthenticated(true);
-            alert("Login successful!");
-
-            //redirect
-            navigate("/movies");
-          } else {
-            alert("Invalid credentials");
-          }
-        })
-        .catch((err) => {
-          console.error("Axios error:", err);
-          alert("Something went wrong");
-        });
-    }
+          //redirect
+          navigate("/movies");
+        } else {
+          alert("Invalid credentials");
+        }
+      })
+      .catch((err) => {
+        console.error("Axios error:", err);
+        alert("Something went wrong");
+      });
   };
 
   return (
@@ -76,9 +100,9 @@ const Login = ({ setIsAuthenticated }) => {
                     required=""
                     onChange={handleInput}
                   />
-                  {errors.email && (
+                  {/* {errors.email && (
                     <span className="text-red-500 text-sm">{errors.email}</span>
-                  )}
+                  )} */}
                 </div>
                 <div>
                   <label
@@ -96,7 +120,7 @@ const Login = ({ setIsAuthenticated }) => {
                     required=""
                     onChange={handleInput}
                   />
-                  {errors.password && <span>{errors.password}</span>}
+                  {/* {errors.password && <span>{errors.password}</span>} */}
                 </div>
 
                 <button
